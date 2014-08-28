@@ -1,0 +1,11 @@
+{
+    "baasUrl": "https://mobile.stage1.ng.bluemix.net",
+    "plugins": [
+        {
+            "class": "com.ibm.mobile.services.push.IBMPushService",
+            "parameters": {
+                "gcmSenderId": "821272323489"
+            }
+        }
+    ]
+}

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+            id="com.lisaseacat.metawear" version="0.0.1">
+        <name>Metawear Cordova Plugin for LED</name>
+        <description>An Apache Cordova plugin to interact with a metaware board on your hybrid app</description>
+        <license></license>
+        <keywords>cordova,lisa seacat, lisa seacat deluca, metaware, bluetooth</keywords>
+        <js-module src="www/metawear.js" name="metawear">
+            <clobbers target="metawear" />
+        </js-module>
+        <platform name="android">
+	        <config-file target="res/xml/config.xml" parent="/*">
+	            <feature name="MetawearLED">
+	                <param name="android-package" value="com.lisaseacat.metawear.led.MetawearLED"/>
+	            </feature>
+	        </config-file>
+	        
+	        <source-file src="src/android/androidplot-core-0.6.2-SNAPSHOT.jar" target-dir="libs" framework="true" />
+	        <source-file src="src/android/android-support-v4.jar" target-dir="libs" framework="true" />
+            <source-file src="src/android/metawear.jar" target-dir="libs" framework="true" />
+            <source-file src="src/android/nrf-logger-v1.2.jar" target-dir="libs" framework="true" />
+	        <source-file src="src/android/MetawearLED.java" target-dir="src/com/lisaseacat/metawear/led" />
+            <source-file src="src/android/strings_dfu.xml" target-dir="res/values" />
+	    
+	    	<config-file target="AndroidManifest.xml" parent="/manifest">
+                <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
+                <uses-permission android:name="android.permission.BLUETOOTH"/>
+                <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+                <uses-permission android:name="android.permission.INTERNET"/>
+                <uses-permission android:name="android.permission.READ_INTERNAL_STORAGE" />
+        	</config-file>
+            
+            <config-file target="AndroidManifest.xml" parent="/manifest/application">
+                <service android:name="com.mbientlab.metawear.api.MetaWearBleService" />
+                <service
+                    android:name="no.nordicsemi.android.nrftoolbox.dfu.DfuService"
+                    android:exported="true"
+                    android:label="@string/dfu_service_title" >
+                    <intent-filter>
+                        <action android:name="no.nordicsemi.android.action.DFU_UPLOAD" />
+        
+                        <category android:name="android.intent.category.DEFAULT" />
+                    </intent-filter>
+                </service>
+        </config-file>
+
+	    
+	    </platform>
+</plugin>

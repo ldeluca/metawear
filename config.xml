@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="com.lisaseacat.metawear.ledtest" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>Metawear Lisa Seacat</name>
+    <description>
+        An app to test metawear led
+    </description>
+    <author email="lisa@lisaseacat.com" href="http://lisaseacat.com">
+        Lisa Seacat DeLuca
+    </author>
+    <content src="index.html" />
+    <access origin="*" />
+</widget>
