@@ -14,6 +14,12 @@ var app = {
         document.addEventListener('deviceready', this.onDeviceReady, false);
         disconnectButton.addEventListener('touchstart', bluetooth.disconnect, false);
         connectButton.addEventListener('touchstart', metawearStart, false);
+        
+        ledButton.addEventListener('touchstart', bluetooth.lisaLED, false);
+        
+        playledButton.addEventListener('touchstart', bluetooth.playLED, false);
+        pauseledButton.addEventListener('touchstart', bluetooth.pauseLED, false);
+        stopledButton.addEventListener('touchstart', bluetooth.stopLED, false);
     },
     // deviceready Event Handler
     //
@@ -98,7 +104,7 @@ var bluetooth = {
         if (!success) {
             success = function() {
                 console.log("success");
-                alert( "Sent: " + JSON.stringify(new Uint8Array(buffer)) );
+                console.log( "Sent: " + JSON.stringify(new Uint8Array(buffer)) );
             };
         }
 
@@ -106,6 +112,7 @@ var bluetooth = {
             failure = bluetooth.onError;
         }
 
+        console.log('about to call writeCommand');
         ble.writeCommand(bluetooth.deviceId, metawear.serviceUUID, metawear.txCharacteristic, buffer, success, failure);
     },
     subscribeForIncomingData: function() {
@@ -120,6 +127,72 @@ var bluetooth = {
         data[2] = 0x01; // enable
 
         bluetooth.writeData(data.buffer, success, failure);
+    },
+    onLEDButton: function(event) {
+        var data = new Uint8Array(6);
+        data[0] = 0x02; // module LED is at position 2  (but neopixel is at 6)
+        data[1] = 0x01; // pulse ops code
+        data[2] = 0x80; // Motor
+        data[3] = pulseWidth & 0xFF; // Pulse Width
+        data[4] = pulseWidth >> 8; // Pulse Width
+        data[5] = 0x00; // Some magic bullshit
+
+        bluetooth.writeData(data.buffer);
+    },
+    lisaLED: function(){
+        // Blink Blue?
+        var data = new Uint8Array(17);        
+        data[0] = 0x02; // Color Register
+        data[1] = 0x03; // 
+        data[2] = 0x00; // 
+        data[3] = 0x02; // 
+        data[4] = 0x1F; // high intensity  1F for solid
+        data[5] = 0x64; // low intensity 64 for solid
+        data[6] = 0xF4; // 
+        data[7] = 0x01; // 
+        data[8] = 0xF4; // 
+        data[9] = 0x01; // high intensity
+        data[10] = 0xF4; // low intensity
+        data[11] = 0x01; // Rise Time
+        data[12] = 0xD0; // High Time
+        data[13] = 0x07; // Fall time
+        data[14] = 0x00; // Pulse Duration 
+        data[15] = 0x00; // Pulse Offset 
+        data[16] = 0x01; //repeat count
+        
+        var s = "";
+       for(var j=0;j<data.length; j++)  {
+           s += "i[" + j + "]=" + (data[j]) + "\n"; 
+       }
+        alert('bytes to write: ' + s);
+        bluetooth.writeData(data.buffer);
+    },
+    playLED : function() {
+        console.log("play LED called");
+       var data = new Uint8Array(3);        
+        data[0] = 0x02; // Color Register
+        data[1] = 0x01; // Color Blue ??
+        data[2] = 0x01; // Flash?
+        
+         bluetooth.writeData(data.buffer);    
+    },
+    pauseLED : function() {
+        console.log("pause LED called");
+       var data = new Uint8Array(3);        
+        data[0] = 0x02; // 
+        data[1] = 0x01; // 
+        data[2] = 0x00; // 
+        
+         bluetooth.writeData(data.buffer);    
+    },
+    stopLED : function() {
+        console.log("stop LED called");
+       var data = new Uint8Array(3);        
+        data[0] = 0x02; // 
+        data[1] = 0x02; // 
+        data[2] = 0x00; // 
+        
+         bluetooth.writeData(data.buffer);    
     },
     onMotorButton: function(event) {
         var pulseWidth = pulseWidthInput.value;
