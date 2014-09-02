@@ -12,28 +12,33 @@ var app = {
     // 'load', 'deviceready', 'offline', and 'online'.
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
-        disconnectButton.addEventListener('touchstart', bluetooth.disconnect, false);
-        connectButton.addEventListener('touchstart', metawearStart, false);
         
-        ledButton.addEventListener('touchstart', bluetooth.lisaLED, false);
-        
-        playledButton.addEventListener('touchstart', bluetooth.playLED, false);
-        pauseledButton.addEventListener('touchstart', bluetooth.pauseLED, false);
-        stopledButton.addEventListener('touchstart', bluetooth.stopLED, false);
     },
     // deviceready Event Handler
     //
     // The scope of 'this' is the event. In order to call the 'receivedEvent'
     // function, we must explicitly call 'app.receivedEvent(...);'
     onDeviceReady: function() {
+        //bind events that need to wait for Cordova to be ready
+        disconnectButton.addEventListener('touchstart', bluetooth.disconnect, false);
+        connectButton.addEventListener('touchstart', metawearStart, false);
+        
+        ledButtonred.addEventListener('touchstart', function(){metawear.neopixel(metawear.COLOR.RED); }, false);
+        ledButtongreen.addEventListener('touchstart', function(){metawear.neopixel(metawear.COLOR.GREEN); }, false);
+        ledButtonblue.addEventListener('touchstart', function(){metawear.neopixel(metawear.COLOR.BLUE); }, false);
+        
+        playledButton.addEventListener('touchstart', function(){ metawear.play(true); }, false);
+        pauseledButton.addEventListener('touchstart', metawear.pause, false);
+        stopledButton.addEventListener('touchstart', function(){ metawear.stop(true); }, false);
+        
+        
         metawearStart();
     }
 };
 
 
 //https://github.com/don/cordova-plugin-ble-central
-var bluetooth = {
-    deviceId : "",
+/*var bluetooth2 = {
     isNotConnected: function(res) {
         //alert("bluetooth wasn't connected so we'll connect");
         //alert('what is cordova platofrm id: ' + cordova.platformId);
@@ -59,8 +64,8 @@ var bluetooth = {
          connectButton.style.display = "none";
          bluetooth.enableButtonFeedback(bluetooth.subscribeForIncomingData, bluetooth.onError);
          //TODO we want to turn on the LED here
-         /*var value = "noidea";
-        ble.write(bluetooth.deviceId, MetaWearServices.service_uuid, MetaWearServices.characteristic_uuid, value, bluetooth.onWriteWin, bluetooth.onWriteFail);*/
+         var value = "noidea";
+        ble.write(bluetooth.deviceId, MetaWearServices.service_uuid, MetaWearServices.characteristic_uuid, value, bluetooth.onWriteWin, bluetooth.onWriteFail);
     },
     onDisconnect: function(err) {
         alert("bluetooth disconnected: " + JSON.stringify(err)); 
@@ -140,7 +145,7 @@ var bluetooth = {
         bluetooth.writeData(data.buffer);
     },
     lisaLED: function(){
-        // Blink Blue?
+        console.log("LED called");
         var data = new Uint8Array(17);        
         data[0] = 0x02; // Color Register
         data[1] = 0x03; // 
@@ -167,12 +172,18 @@ var bluetooth = {
         alert('bytes to write: ' + s);
         bluetooth.writeData(data.buffer);
     },
-    playLED : function() {
-        console.log("play LED called");
+    playLED : function(autoplay) {
+        console.log("play LED called with autoplay: " + autoplay);
        var data = new Uint8Array(3);        
-        data[0] = 0x02; // Color Register
-        data[1] = 0x01; // Color Blue ??
-        data[2] = 0x01; // Flash?
+        data[0] = 0x02; // 
+        data[1] = 0x01; // 
+        
+        //assuming next value is for autoplay
+        //TODO which of the 3 location is the autoplay value? data[1] or data[2]??
+        var isautoplay = ((autoplay === true) ? 0x02 : 0x01);
+        data[2] = isautoplay; // 
+        //data[2] = 0x01;
+        
         
          bluetooth.writeData(data.buffer);    
     },
@@ -185,12 +196,13 @@ var bluetooth = {
         
          bluetooth.writeData(data.buffer);    
     },
-    stopLED : function() {
-        console.log("stop LED called");
+    stopLED : function(clearPattern) {
+        console.log("stop LED called with clearPattern: " + clearPattern);
        var data = new Uint8Array(3);        
         data[0] = 0x02; // 
         data[1] = 0x02; // 
-        data[2] = 0x00; // 
+        // if 0 then just stop. if 1 then cancel the pattern
+        data[2] = ((clearPattern === true) ? 0x01 : 0x00); 
         
          bluetooth.writeData(data.buffer);    
     },
@@ -224,70 +236,58 @@ var bluetooth = {
         
         connectButton.style.display = "";
     },
-};
+};*/
 
 function metawearStart() {
     console.log('metawearStart');
-    //bluetoothle.initialize(bluetooth.initializeSuccessCallback, bluetooth.initializeErrorCallback);
-    ble.isConnected(bluetooth.deviceId, bluetooth.onConnect, bluetooth.isNotConnected);
-    
-    
-   /* metawear.init(
-        // success callback
-        function () {
-            alert('metawearStart success, now we can use it');
-            console.log("metawear init Success");
-        },
-        // error callback
-        function (err) {
-            alert('metawear init error' + JSON.stringify(err));
-            console.log("bluemix init Error: " + err);
-        }, "somethinghere");*/
+    //ble.isConnected(bluetooth.deviceId, bluetooth.onConnect, bluetooth.isNotConnected);
+    metawear.init(bluetooth.onConnect, bluetooth.onError);
+
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-//below is for the bluetoothle plugin in the plugins registry (not Don's)
-/*
-var bluetooth_2 = {
-    initializeSuccessCallback: function() {
-        alert('bluetooth initializeSuccessCallback!');
-        var params = {"address":macAddress};
-        bluetoothle.connect(bluetooth.onConnect, bluetooth.onDisconnect, params);
-    },
-    initializeErrorCallback: function(err) {
-        alert("bluetooth initializeErrorCallback: " + JSON.stringify(err)); 
-        //document.getElementById('reconnect').style.display="";
-    },
-     onConnect: function() {
-        alert('bluetooth connected!');
-         //Value is a base64 encoded string of bytes to write. Use bluetoothle.getString(bytes) to convert to base64 encoded string from a unit8Array.
-         var valAsBytes = bluetoothle.getBytes("\l255,255,255");
-         var params = {"value":valAsBytes,"serviceUuid":"180F","characteristicUuid":"2A19"};
-        bluetoothle.write(bluetooth.onWriteWin, bluetooth.onWriteFail, params);
-
-
+var bluetooth = {
+     onConnect: function(res) {
+        alert('bluetooth connected! ' + JSON.stringify(res));
+         connectButton.style.display = "none";
+         
+         //listen for the button on the metawear
+         metawear.listenForButton(bluetooth.onError, bluetooth.onData, bluetooth.onDataError);
     },
     onDisconnect: function(err) {
         alert("bluetooth disconnected: " + JSON.stringify(err)); 
-        //document.getElementById('reconnect').style.display="";
+        connectButton.style.display = "";
     },
-    onWriteWin: function(res) {
-        alert('onWriteWin' + JSON.stringify(res));
+    onData: function(buffer) { // data received from MetaWear
+        console.log('data received');
+        var data = new Uint8Array(buffer);
+        console.log('the data is: ' + JSON.stringify(data));
+        var message = "";
+
+        if (data[0] === 1 && data[1] === 1) { // module = 1, opscode = 1
+            if (data[2] === 1) { // button state
+                message = "Button pressed";
+            } else {
+                message = "Button released";
+            }
+        }
+
+        alert("Sample Cordova App... Metawear message received: " + message);
     },
-    onWriteFail: function(res) {
-        alert('onWriteFail' + JSON.stringify(res));
+    onDataError: function(res) {
+        alert('Bluetooth Data Error: ' + JSON.stringify(res));
+        console.log(JSON.stringify(res));
+    },
+    onError: function(res) {
+        alert('Bluetooth generic error handler: ' + JSON.stringify(res));
+        
+        //if (JSON.stringify(res) === 'Disconnected'){
+            bluetooth.onDisconnect(res);
+       // }
+    },
+    disconnect: function(event) {
+        metawear.disconnect(bluetooth.onWriteWin, bluetooth.onError, event);
+        
+        connectButton.style.display = "";
     }
-};*/
+};

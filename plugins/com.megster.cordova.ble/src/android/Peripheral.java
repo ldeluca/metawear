@@ -18,12 +18,14 @@ import android.app.Activity;
 
 import android.bluetooth.*;
 import org.apache.cordova.CallbackContext;
+import org.apache.cordova.LOG;
 import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Peripheral wraps the BluetoothDevice and provides methods to convert to JSON.
@@ -32,18 +34,21 @@ public class Peripheral extends BluetoothGattCallback {
 
     // 0x2902 org.bluetooth.descriptor.gatt.client_characteristic_configuration.xml
     public final static UUID CLIENT_CHARACTERISTIC_CONFIGURATION_UUID = UUID.fromString("00002902-0000-1000-8000-00805F9B34FB");
+    private static final String TAG = "Peripheral";
 
     private BluetoothDevice device;
     private byte[] advertisingData;
     private int advertisingRSSI;
     private boolean connected = false;
+    private ConcurrentLinkedQueue<BLECommand> commandQueue = new ConcurrentLinkedQueue<BLECommand>();
+    private boolean bleProcessing;
 
     BluetoothGatt gatt;
 
     private CallbackContext connectCallback;
+    private CallbackContext readCallback;
+    private CallbackContext writeCallback;
 
-    // ServiceUUID | CharacteristicUUID | InstanceId is the key
-    private Map<String, CallbackContext> readCallbacks = new HashMap<String, CallbackContext>();
     private Map<String, CallbackContext> notificationCallbacks = new HashMap<String, CallbackContext>();
 
     public Peripheral(BluetoothDevice device, int advertisingRSSI, byte[] scanRecord) {
@@ -143,8 +148,8 @@ public class Peripheral extends BluetoothGattCallback {
 
     @Override
     public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-
         super.onCharacteristicChanged(gatt, characteristic);
+        LOG.d(TAG, "onCharacteristicChanged " + characteristic);
 
         CallbackContext callback = notificationCallbacks.get(generateHashKey(characteristic));
 
@@ -158,26 +163,57 @@ public class Peripheral extends BluetoothGattCallback {
     @Override
     public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
         super.onCharacteristicRead(gatt, characteristic, status);
+        LOG.d(TAG, "onCharacteristicRead " + characteristic);
 
-        CallbackContext callback = readCallbacks.remove(generateHashKey(characteristic));
-
-        if (callback != null) {
+        if (readCallback != null) {
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                callback.success(characteristic.getValue());
+                readCallback.success(characteristic.getValue());
             } else {
-                callback.error("Error reading " + characteristic.getUuid() + " status=" + status);
+                readCallback.error("Error reading " + characteristic.getUuid() + " status=" + status);
             }
+
+            readCallback = null;
 
         }
 
+        commandCompleted();
+    }
+
+    @Override
+    public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+        super.onCharacteristicWrite(gatt, characteristic, status);
+        LOG.d(TAG, "onCharacteristicWrite " + characteristic);
+
+        if (writeCallback != null) {
+
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                writeCallback.success();
+            } else {
+                writeCallback.error(status);
+            }
+
+            writeCallback = null;
+        }
+
+        commandCompleted();
+    }
+
+    @Override
+    public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
+        super.onDescriptorWrite(gatt, descriptor, status);
+        LOG.d(TAG, "onDescriptorWrite " + descriptor);
+        commandCompleted();
     }
 
     public void updateRssi(int rssi) {
         advertisingRSSI = rssi;
     }
 
-    public void setOnDataCallback(UUID serviceUUID, UUID characteristicUUID, CallbackContext callbackContext) {
+    // This seems way too complicated
+    private void registerNotifyCallback(CallbackContext callbackContext, UUID serviceUUID, UUID characteristicUUID) {
+
+        boolean success = false;
 
         if (gatt == null) {
             callbackContext.error("BluetoothGatt is null");
@@ -194,15 +230,13 @@ public class Peripheral extends BluetoothGattCallback {
 
             if (gatt.setCharacteristicNotification(characteristic, true)) {
 
-                // TODO why doesn't setCharacteristicNotification write the descriptor?
+                // Why doesn't setCharacteristicNotification write the descriptor?
                 BluetoothGattDescriptor descriptor = characteristic.getDescriptor(CLIENT_CHARACTERISTIC_CONFIGURATION_UUID);
                 if (descriptor != null) {
                     descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
 
                     if (gatt.writeDescriptor(descriptor)) {
-                        PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
-                        result.setKeepCallback(true);
-                        callbackContext.sendPluginResult(result);
+                        success = true;
                     } else {
                         callbackContext.error("Failed to set client characteristic notification for " + characteristicUUID);
                     }
@@ -219,9 +253,14 @@ public class Peripheral extends BluetoothGattCallback {
             callbackContext.error("Characteristic " + characteristicUUID + " not found");
         }
 
+        if (!success) {
+            commandCompleted();
+        }
     }
 
-    public void readCharacteristic(CallbackContext callbackContext, UUID serviceUUID, UUID characteristicUUID) {
+    private void readCharacteristic(CallbackContext callbackContext, UUID serviceUUID, UUID characteristicUUID) {
+
+        boolean success = false;
 
         if (gatt == null) {
             callbackContext.error("BluetoothGatt is null");
@@ -230,31 +269,28 @@ public class Peripheral extends BluetoothGattCallback {
 
         BluetoothGattService service = gatt.getService(serviceUUID);
         BluetoothGattCharacteristic characteristic = service.getCharacteristic(characteristicUUID);
-        String key = generateHashKey(serviceUUID, characteristic);
 
         if (characteristic == null) {
             callbackContext.error("Characteristic " + characteristicUUID + " not found.");
         } else {
-
-            readCallbacks.put(key, callbackContext);
-
+            readCallback = callbackContext;
             if (gatt.readCharacteristic(characteristic)) {
-
-                PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
-                result.setKeepCallback(true);
-                callbackContext.sendPluginResult(result);
-
+                success = true;
             } else {
-
-                readCallbacks.remove(key);
+                readCallback = null;
                 callbackContext.error("Read failed");
-
             }
+        }
+
+        if (!success) {
+            commandCompleted();
         }
 
     }
 
-    public void writeCharacteristic(CallbackContext callbackContext, UUID serviceUUID, UUID characteristicUUID, byte[] data, int writeType) {
+    private void writeCharacteristic(CallbackContext callbackContext, UUID serviceUUID, UUID characteristicUUID, byte[] data, int writeType) {
+
+        boolean success = false;
 
         if (gatt == null) {
             callbackContext.error("BluetoothGatt is null");
@@ -268,15 +304,89 @@ public class Peripheral extends BluetoothGattCallback {
             callbackContext.error("Characteristic " + characteristicUUID + " not found.");
         } else {
             characteristic.setValue(data);
-            characteristic.setWriteType(writeType); // BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT or WRITE_TYPE_NO_RESPONSE
+            characteristic.setWriteType(writeType);
+            writeCallback = callbackContext;
 
-            // TODO RTFM, on iOS success for write is handled in a callback. This is probably OK for writeCommand.
             if (gatt.writeCharacteristic(characteristic)) {
-                callbackContext.success();
+                success = true;
             } else {
+                writeCallback = null;
                 callbackContext.error("Write failed");
             }
+        }
 
+        if (!success) {
+            commandCompleted();
+        }
+
+    }
+
+    public void queueRead(CallbackContext callbackContext, UUID serviceUUID, UUID characteristicUUID) {
+        BLECommand command = new BLECommand(callbackContext, serviceUUID, characteristicUUID, BLECommand.READ);
+        queueCommand(command);
+    }
+
+    public void queueWrite(CallbackContext callbackContext, UUID serviceUUID, UUID characteristicUUID, byte[] data, int writeType) {
+        BLECommand command = new BLECommand(callbackContext, serviceUUID, characteristicUUID, data, writeType);
+        queueCommand(command);
+    }
+
+    public void queueRegisterNotifyCallback(CallbackContext callbackContext, UUID serviceUUID, UUID characteristicUUID) {
+        BLECommand command = new BLECommand(callbackContext, serviceUUID, characteristicUUID, BLECommand.REGISTER_NOTIFY);
+        queueCommand(command);
+    }
+
+    // add a new command to the queue
+    private void queueCommand(BLECommand command) {
+        LOG.d(TAG,"Queuing Command " + command);
+        commandQueue.add(command);
+
+        PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
+        result.setKeepCallback(true);
+        command.getCallbackContext().sendPluginResult(result);
+
+        if (!bleProcessing) {
+            processCommands();
+        }
+    }
+
+    // command finished, queue the next command
+    private void commandCompleted() {
+        LOG.d(TAG,"Processing Complete");
+        bleProcessing = false;
+        processCommands();
+    }
+
+    // process the queue
+    private void processCommands() {
+        LOG.d(TAG,"Processing Commands");
+
+        if (bleProcessing) { return; }
+
+        BLECommand command = commandQueue.poll();
+        if (command != null) {
+            if (command.getType() == BLECommand.READ) {
+                LOG.d(TAG,"Read " + command.getCharacteristicUUID());
+                bleProcessing = true;
+                readCharacteristic(command.getCallbackContext(), command.getServiceUUID(), command.getCharacteristicUUID());
+            } else if (command.getType() == BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT) {
+                LOG.d(TAG,"Write " + command.getCharacteristicUUID());
+                bleProcessing = true;
+                writeCharacteristic(command.getCallbackContext(), command.getServiceUUID(), command.getCharacteristicUUID(), command.getData(), command.getType());
+            } else if (command.getType() == BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE) {
+                LOG.d(TAG,"Write No Response " + command.getCharacteristicUUID());
+                bleProcessing = true;
+                writeCharacteristic(command.getCallbackContext(), command.getServiceUUID(), command.getCharacteristicUUID(), command.getData(), command.getType());
+            } else if (command.getType() == BLECommand.REGISTER_NOTIFY) {
+                LOG.d(TAG,"Register Notify " + command.getCharacteristicUUID());
+                bleProcessing = true;
+                registerNotifyCallback(command.getCallbackContext(), command.getServiceUUID(), command.getCharacteristicUUID());
+            } else {
+                // this shouldn't happen
+                throw new RuntimeException("Unexpected BLE Command type " + command.getType());
+            }
+        } else {
+            LOG.d(TAG, "Command Queue is empty.");
         }
 
     }
@@ -285,17 +395,8 @@ public class Peripheral extends BluetoothGattCallback {
         return generateHashKey(characteristic.getService().getUuid(), characteristic);
     }
 
-
     private String generateHashKey(UUID serviceUUID, BluetoothGattCharacteristic characteristic) {
-
-        StringBuffer b = new StringBuffer();
-        b.append(serviceUUID);
-        b.append("|");
-        b.append(characteristic.getUuid());
-        b.append("|");
-        b.append(characteristic.getInstanceId());
-        return b.toString();
-
+        return String.valueOf(serviceUUID) + "|" + characteristic.getUuid() + "|" + characteristic.getInstanceId();
     }
 
 }

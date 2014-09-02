@@ -8,19 +8,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name="com.mbientlab.metawear.api.MetaWearBleService" />
-        <service android:exported="true" android:label="@string/dfu_service_title" android:name="no.nordicsemi.android.nrftoolbox.dfu.DfuService">
-            <intent-filter>
-                <action android:name="no.nordicsemi.android.action.DFU_UPLOAD" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </service>
     </application>
     <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="19" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-sdk android:minSdkVersion="18" android:targetSdkVersion="19" />
-    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_INTERNAL_STORAGE" />
 </manifest>

@@ -8,14 +8,7 @@
 package com.lisaseacat.metawear.ledtest;
 
 public final class R {
-    public static final class array {
-        public static final int dfu_app_file_browser=0x7f060000;
-        public static final int dfu_app_file_browser_action=0x7f060001;
-    }
     public static final class attr {
-    }
-    public static final class dimen {
-        public static final int dfu_feature_title_long_margin=0x7f050000;
     }
     public static final class drawable {
         public static final int icon=0x7f020000;
@@ -23,64 +16,6 @@ public final class R {
     }
     public static final class string {
         public static final int app_name=0x7f040000;
-        public static final int dfu_about_text=0x7f04003a;
-        public static final int dfu_action_select_file=0x7f040013;
-        public static final int dfu_action_update_latest=0x7f040012;
-        public static final int dfu_action_upload=0x7f040017;
-        public static final int dfu_action_upload_cancel=0x7f040019;
-        public static final int dfu_action_upload_help=0x7f040018;
-        public static final int dfu_alert_no_filebrowser_message=0x7f040015;
-        public static final int dfu_alert_no_filebrowser_title=0x7f040014;
-        public static final int dfu_confirmation_dialog_exit_message=0x7f040036;
-        public static final int dfu_confirmation_dialog_title=0x7f040035;
-        public static final int dfu_default_name=0x7f040034;
-        public static final int dfu_example_files_created=0x7f040005;
-        public static final int dfu_example_new_files_created=0x7f040006;
-        public static final int dfu_feature_title=0x7f040001;
-        public static final int dfu_feature_title_long=0x7f040004;
-        public static final int dfu_file_name_label=0x7f040009;
-        public static final int dfu_file_size_label=0x7f04000b;
-        public static final int dfu_file_size_text=0x7f04000d;
-        public static final int dfu_file_status_invalid=0x7f040010;
-        public static final int dfu_file_status_invalid_message=0x7f040011;
-        public static final int dfu_file_status_label=0x7f04000c;
-        public static final int dfu_file_status_no_file=0x7f04000f;
-        public static final int dfu_file_status_ok=0x7f04000e;
-        public static final int dfu_file_type_label=0x7f04000a;
-        public static final int dfu_help_message=0x7f040039;
-        public static final int dfu_help_title=0x7f040038;
-        public static final int dfu_scripts_created=0x7f040007;
-        public static final int dfu_section_application_header=0x7f040008;
-        public static final int dfu_section_dfu_header=0x7f040016;
-        public static final int dfu_service_title=0x7f040002;
-        public static final int dfu_settings_dfu=0x7f04002b;
-        public static final int dfu_settings_dfu_about=0x7f04002e;
-        public static final int dfu_settings_dfu_about_summary=0x7f04002f;
-        public static final int dfu_settings_dfu_number_of_packets_label=0x7f04002d;
-        public static final int dfu_settings_dfu_packets_receipt_notification_label=0x7f04002c;
-        public static final int dfu_settings_title=0x7f040003;
-        public static final int dfu_status_abored=0x7f040021;
-        public static final int dfu_status_aborted_msg=0x7f040028;
-        public static final int dfu_status_completed=0x7f040020;
-        public static final int dfu_status_completed_msg=0x7f040027;
-        public static final int dfu_status_connecting=0x7f04001b;
-        public static final int dfu_status_connecting_msg=0x7f040023;
-        public static final int dfu_status_disconnecting=0x7f04001f;
-        public static final int dfu_status_disconnecting_msg=0x7f040029;
-        public static final int dfu_status_error=0x7f040022;
-        public static final int dfu_status_error_msg=0x7f04002a;
-        public static final int dfu_status_initializing=0x7f04001a;
-        public static final int dfu_status_starting=0x7f04001c;
-        public static final int dfu_status_starting_msg=0x7f040024;
-        public static final int dfu_status_uploading=0x7f04001d;
-        public static final int dfu_status_uploading_msg=0x7f040025;
-        public static final int dfu_status_validating=0x7f04001e;
-        public static final int dfu_status_validating_msg=0x7f040026;
-        public static final int dfu_unknown_name=0x7f040030;
-        public static final int dfu_upload_dialog_cancel_message=0x7f040037;
-        public static final int dfu_uploading_label=0x7f040031;
-        public static final int dfu_uploading_percentage=0x7f040033;
-        public static final int dfu_uploading_percentage_label=0x7f040032;
     }
     public static final class xml {
         public static final int config=0x7f030000;

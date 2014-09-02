@@ -13,6 +13,7 @@ C:\Users\IBM_ADMIN\Google Drive\metawear\cordova\MetawearLED\platforms\android\a
 C:\Users\IBM_ADMIN\Google Drive\metawear\cordova\MetawearLED\platforms\android\ant-build\classes\com\lisaseacat\metawear\ledtest\R.class \
 C:\Users\IBM_ADMIN\Google Drive\metawear\cordova\MetawearLED\platforms\android\ant-build\classes\com\megster\cordova\ble\central\BLECentralPlugin$1.class \
 C:\Users\IBM_ADMIN\Google Drive\metawear\cordova\MetawearLED\platforms\android\ant-build\classes\com\megster\cordova\ble\central\BLECentralPlugin.class \
+C:\Users\IBM_ADMIN\Google Drive\metawear\cordova\MetawearLED\platforms\android\ant-build\classes\com\megster\cordova\ble\central\BLECommand.class \
 C:\Users\IBM_ADMIN\Google Drive\metawear\cordova\MetawearLED\platforms\android\ant-build\classes\com\megster\cordova\ble\central\Peripheral.class \
 C:\Users\IBM_ADMIN\Google Drive\metawear\cordova\MetawearLED\platforms\android\ant-build\classes\com\megster\cordova\BluetoothSerial$1.class \
 C:\Users\IBM_ADMIN\Google Drive\metawear\cordova\MetawearLED\platforms\android\ant-build\classes\com\megster\cordova\BluetoothSerial.class \
@@ -26,7 +27,3 @@ C:\Users\IBM_ADMIN\Google Drive\metawear\cordova\MetawearLED\platforms\android\a
 C:\Users\IBM_ADMIN\Google Drive\metawear\cordova\MetawearLED\platforms\android\ant-build\classes\com\randdusing\bluetoothle\BluetoothLePlugin.class \
 C:\Users\IBM_ADMIN\Google Drive\metawear\cordova\MetawearLED\platforms\android\ant-build\classes\org\apache\cordova\api\Dummy.class \
 C:\Users\IBM_ADMIN\Google Drive\metawear\cordova\MetawearLED\platforms\android\ant-build\dexedLibs\classes-487851ec005605514f35b15e9e07a875.jar \
-C:\Users\IBM_ADMIN\Google Drive\metawear\cordova\MetawearLED\platforms\android\ant-build\dexedLibs\androidplot-core-0.6.2-SNAPSHOT-fd2af4cb457514488bf226a0ac40ccfb.jar \
-C:\Users\IBM_ADMIN\Google Drive\metawear\cordova\MetawearLED\platforms\android\ant-build\dexedLibs\metawear-b9bdf040c8bb115ecc5fff048aa61662.jar \
-C:\Users\IBM_ADMIN\Google Drive\metawear\cordova\MetawearLED\platforms\android\ant-build\dexedLibs\nrf-logger-v1.2-971858dc1d4ec2d1bcf8a1275019fea0.jar \
-C:\Users\IBM_ADMIN\Google Drive\metawear\cordova\MetawearLED\platforms\android\ant-build\dexedLibs\android-support-v4-74d55b070593fcc5f8b4cd0e38150419.jar \
