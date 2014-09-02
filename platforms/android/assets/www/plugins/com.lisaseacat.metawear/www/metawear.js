@@ -110,7 +110,7 @@ var metawear = {
         "BLUE" : 0x02
     },
     neopixel: function(color){
-        console.log("LED called");
+        console.log("LED called with color: " + color);
         var data = new Uint8Array(17);        
         data[0] = 0x02; // Color Register
         data[1] = 0x03; // 
@@ -129,12 +129,7 @@ var metawear = {
         data[14] = 0x00; // Pulse Duration 
         data[15] = 0x00; // Pulse Offset 
         data[16] = 0x01; //repeat count
-        
-        var s = "";
-       for(var j=0;j<data.length; j++)  {
-           s += "i[" + j + "]=" + (data[j]) + "\n"; 
-       }
-        alert('bytes to write: ' + s);
+
         metawear.writeData(data.buffer);
     },
     play : function(autoplay) {
@@ -171,8 +166,8 @@ var metawear = {
         
          metawear.writeData(data.buffer);    
     },
-    onMotorButton: function(event) {
-        var pulseWidth = pulseWidthInput.value;
+    motor: function(pulseLength) {
+        var pulseWidth = pulseLength;
         var data = new Uint8Array(6);
         data[0] = 0x07; // module
         data[1] = 0x01; // pulse ops code
@@ -183,8 +178,8 @@ var metawear = {
 
         metawear.writeData(data.buffer);
     },
-    onBuzzerButton: function(event) {
-        var pulseWidth = pulseWidthInput.value;
+    buzzer: function(pulseLength) {
+        var pulseWidth = pulseLength;
         var data = new Uint8Array(6);
         data[0] = 0x07; // module
         data[1] = 0x01; // pulse ops code

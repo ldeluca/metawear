@@ -5,9 +5,6 @@
     <feature name="App">
         <param name="android-package" value="org.apache.cordova.App" />
     </feature>
-    <feature name="MetawearLED">
-        <param name="android-package" value="com.lisaseacat.metawear.led.MetawearLED" />
-    </feature>
     <feature name="BLE">
         <param name="android-package" value="com.megster.cordova.ble.central.BLECentralPlugin" />
     </feature>
@@ -20,4 +17,7 @@
     </author>
     <content src="index.html" />
     <access origin="*" />
+    <feature name="MetawearLED">
+        <param name="android-package" value="com.lisaseacat.metawear.led.MetawearLED" />
+    </feature>
 </widget>
