@@ -23,9 +23,9 @@ var app = {
         disconnectButton.addEventListener('touchstart', bluetooth.disconnect, false);
         connectButton.addEventListener('touchstart', metawearStart, false);
         
-        ledButtonred.addEventListener('touchstart', function(){metawear.neopixel(metawear.COLOR.RED); }, false);
-        ledButtongreen.addEventListener('touchstart', function(){metawear.neopixel(metawear.COLOR.GREEN); }, false);
-        ledButtonblue.addEventListener('touchstart', function(){metawear.neopixel(metawear.COLOR.BLUE); }, false);
+        ledButtonred.addEventListener('touchstart', function(){metawear.setLED(metawear.COLOR.RED); }, false);
+        ledButtongreen.addEventListener('touchstart', function(){metawear.setLED(metawear.COLOR.GREEN); }, false);
+        ledButtonblue.addEventListener('touchstart', function(){metawear.setLED(metawear.COLOR.BLUE); }, false);
         
         playledButton.addEventListener('touchstart', function(){ metawear.play(true); }, false);
         pauseledButton.addEventListener('touchstart', metawear.pause, false);
@@ -50,13 +50,13 @@ var bluetooth = {
          connectButton.style.display = "none";
          
          //listen for the button on the metawear
-         metawear.listenForButton(bluetooth.onError, bluetooth.onData, bluetooth.onDataError);
+         metawear.listenForButton(bluetooth.onError);
     },
     onDisconnect: function(err) {
         alert("bluetooth disconnected: " + JSON.stringify(err)); 
         connectButton.style.display = "";
     },
-    onData: function(buffer) { // data received from MetaWear
+    /*onData: function(buffer) { // data received from MetaWear
         console.log('data received');
         var data = new Uint8Array(buffer);
         console.log('the data is: ' + JSON.stringify(data));
@@ -71,7 +71,7 @@ var bluetooth = {
         }
 
         alert("Sample Cordova App... Metawear message received: " + message);
-    },
+    },*/
     onDataError: function(res) {
         alert('Bluetooth Data Error: ' + JSON.stringify(res));
         console.log(JSON.stringify(res));

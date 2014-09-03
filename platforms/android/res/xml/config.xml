@@ -17,7 +17,4 @@
     </author>
     <content src="index.html" />
     <access origin="*" />
-    <feature name="MetawearLED">
-        <param name="android-package" value="com.lisaseacat.metawear.led.MetawearLED" />
-    </feature>
 </widget>

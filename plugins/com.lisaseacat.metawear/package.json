@@ -1,0 +1,25 @@
+{
+    "version": "0.0.2",
+    "name": "com.lisaseacat.metawear",
+    "cordova_name": "Metawear Cordova Plugin",
+    "description": "An Apache Cordova plugin to interact with a metaware board on your hybrid app",
+    "keywords": [
+        "cordova",
+        "lisa seacat",
+        " lisa seacat deluca",
+        " metaware",
+        " bluetooth",
+        " ble",
+        " LED",
+        " neopixel",
+        " sensors",
+        " accelerometer",
+        " temperature",
+        " mbient"
+    ],
+    "platforms": [
+        "android",
+        "ios"
+    ],
+    "engines": []
+}

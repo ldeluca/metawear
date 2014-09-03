@@ -28,7 +28,7 @@ $ cordova plugin add com.lisaseacat.metawear
 
 ## color
 
-When playing a color on the metawear there are three choices for colors, red, green, and blue.  You will need to pass one of these color variables into the neopixel method to indicate your color choice.
+When playing a color on the metawear there are three choices for colors, red, green, and blue.  You will need to pass one of these color variables into the setLED method to indicate your color choice.
 
     COLOR.RED - red
     COLOR.GREEN - green
@@ -42,13 +42,16 @@ When playing a color on the metawear there are three choices for colors, red, gr
 
 - [metawear.listenForButton](#listenForButton)
 
-- [metawear.neopixel](#neopixel)
+- [metawear.setLED](#setLED)
 - [metawear.play](#play)
 - [metawear.pause](#pause)
 - [metawear.stop](#stop)
 
 - [metawear.motor](#motor)
 - [metawear.buzzer](#buzzer)
+
+- [metawear.startAccelerometer](#startAccelerometer)
+- [metawear.stopAccelerometer](#stopAccelerometer)
 
 - [metawear.disconnect](#disconnect)
 
@@ -85,15 +88,15 @@ Function 'listenForButton' adds an event listener to the metawear device button 
 - __messageReceived__: Success callback function, invoked when the metawear button is pressed. [optional]
 - __messageError__: Error callback function, invoked when the  metawear button is pressed but there was an error retrieving the message. [optional]
 
-## neopixel
+## setLED
 
 Call to light up the LED on the metawear.
 
-    metawear.neopixel(metawear.COLOR.BLUE); 
+    metawear.setLED(metawear.COLOR.BLUE); 
     
 ### Description
 
-Function 'neopixel' allows you to tell the metawear led to light up with a specific color.  
+Function 'setLED' allows you to tell the metawear led to light up with a specific color.  
 
 ### Parameters
 
@@ -136,7 +139,7 @@ Function 'stop' tells the metawear to stop playing the saved LED color pattern.
 
 ### Parameters
 
-- __clearPattern__: boolean value to indicate whether the color pattern should be cleared out.  If you were to call the play method after calling the stop method with the clearPattern flag set to true, nothing will play because the pattern has been removed.  Instead you'll have to first add a color to the pattern with the 'neopixel' function.
+- __clearPattern__: boolean value to indicate whether the color pattern should be cleared out.  If you were to call the play method after calling the stop method with the clearPattern flag set to true, nothing will play because the pattern has been removed.  Instead you'll have to first add a color to the pattern with the 'setLED' function.
 
 ## motor
 
@@ -165,6 +168,71 @@ Function 'buzzer' tells the optional metawear buzzer to pulse.
 ### Parameters
 
 - __pulseLength__: value indicates how long you'd like the motor to pulse.
+
+## startAccelerometer
+
+Tells the metawear to start sharing information about the accelerometer
+
+    metawear.startAccelerometer(); 
+    
+### Description
+
+Function 'startAccelerometer' tells the metawear to start sharing information about the accelerometer.  We can use the information returned to see how the values have changed.  
+
+### Quick Example of Processing the Accelerometer Information
+
+    onDataReceived : function(buffer) { // data received from MetaWear
+        console.log('data received plugin handler');
+        var data = new Uint8Array(buffer);
+        if (data[0] === 3 && data[1] === 4) { // module = 3, opscode = 4
+            //console.log('accelerometer data is: ' + JSON.stringify(data));
+            //FYI guessing as the xyz values
+            var d2 = data[2]; //x
+            var d3 = data[3];
+            var d4 = data[4]; //y
+            var d5 = data[5];
+            var d6 = data[6]; //z
+            var d7 = data[7];
+            message = "Got accelerometer information: [2]" 
+                + d2 + ",[3]" + d3
+            + ",[4]" + d4
+            + ",[5]" + d5
+            + ",[6]" + d6
+            + ",[7]" + d7;
+            //console.log("ACCELEROMETER MESSAGE: " + message);
+            
+            //compare against old values
+            var xdiff = Math.abs(metawear.accelerometerVALS.x - d2);
+            if (xdiff > 30 && metawear.accelerometerVALS.x !== 22){
+                console.log("x value changes more than 30 degrees: " + xdiff);
+                console.log("ACCELEROMETER MESSAGE: " + message);
+                metawear.setLED(metawear.COLOR.RED);   
+            }
+            
+            var ydiff = Math.abs(metawear.accelerometerVALS.y - d4);
+            if (ydiff > 30 && metawear.accelerometerVALS.x !== 22){
+                console.log("y value changes more than 30 degrees: " + ydiff);
+                console.log("ACCELEROMETER MESSAGE: " + message);
+                metawear.setLED(metawear.COLOR.GREEN);   
+            }
+            
+            //reset accelerometer values
+            metawear.accelerometerVALS.x = d2;
+            metawear.accelerometerVALS.y = d4;
+            metawear.accelerometerVALS.z = d6;
+            
+            //all the rest of the values are the same
+        }
+
+## stopAccelerometer
+
+Tells the metawear to stop sharing information about the accelerometer
+
+    metawear.stopAccelerometer(); 
+    
+### Description
+
+Function 'startAccelerometer' tells the metawear to start sharing information about the accelerometer.  We can use the information returned to see how the values have changed.
 
 ## disconnect
 

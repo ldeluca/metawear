@@ -19,7 +19,7 @@ module.exports.metadata =
 // TOP OF METADATA
 {
     "com.megster.cordova.ble": "0.0.1",
-    "com.lisaseacat.metawear": "0.0.1"
+    "com.lisaseacat.metawear": "0.0.2"
 }
 // BOTTOM OF METADATA
 });

@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
     <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
-            id="com.lisaseacat.metawear" version="0.0.1">
+            id="com.lisaseacat.metawear" version="0.0.2">
         <name>Metawear Cordova Plugin</name>
         <description>An Apache Cordova plugin to interact with a metaware board on your hybrid app</description>
         <license></license>
-        <keywords>cordova,lisa seacat, lisa seacat deluca, metaware, bluetooth</keywords>
+        <keywords>cordova,lisa seacat, lisa seacat deluca, metaware, bluetooth, ble, LED, neopixel, sensors, accelerometer, temperature, mbient</keywords>
         <js-module src="www/metawear.js" name="metawear">
             <clobbers target="metawear" />
         </js-module>
-        
-        <dependency id="com.megster.cordova.ble" url="https://github.com/don/cordova-plugin-ble-central/plugin"/>
+
+        <dependency id="com.megster.cordova.ble" />
         
         <platform name="android">
-	        <config-file target="res/xml/config.xml" parent="/*">
-	            <feature name="MetawearLED">
-	                <param name="android-package" value="com.lisaseacat.metawear.led.MetawearLED"/>
-	            </feature>
-	        </config-file>	    
+	    </platform>
+        
+        <platform name="ios">
 	    </platform>
 </plugin>
